@@ -54,7 +54,9 @@
                                                  name:@"NoDataInFeed"
                                                object:nil];
     
-    [[ISDataFetchSingleton sharedInstance] beginQuery:@"https://itunes.apple.com/search?term=tabular&media=software"];
+    
+    self.currentQuery = @"https://itunes.apple.com/search?term=tabular&media=software";
+    [[ISDataFetchSingleton sharedInstance] beginQuery:self.currentQuery];
 
 }
 
@@ -71,8 +73,6 @@
     
     NSLog(@"Print data from cache: %@", data);
 }
-
-
 
 
 @end

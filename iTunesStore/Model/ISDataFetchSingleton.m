@@ -8,17 +8,21 @@
 
 NSString * const kCachedDate = @"cachedDate";
 
+
 #import "ISDataFetchSingleton.h"
 
 @interface ISDataFetchSingleton ()
 
-@property (strong, nonatomic) NSString* currentQueryURL;
+@property (strong, nonatomic) NSString *currentQueryURL;
+@property (strong, nonatomic) NSString *storedFilePath;
 
 @end
 
 @implementation ISDataFetchSingleton
 
 + (ISDataFetchSingleton *) sharedInstance {
+
+    
     static dispatch_once_t _p;
     
     __strong static id _singleton = nil;
@@ -28,6 +32,7 @@ NSString * const kCachedDate = @"cachedDate";
     });
     
     return _singleton;
+    
 }
 
 - (id)init
@@ -35,8 +40,9 @@ NSString * const kCachedDate = @"cachedDate";
     self = [super init];
     
     if (self) {
-        //individualNewsFeeds is a mutable array of dictionaries containing an individual amendment's newsfeed, keyed by title, i.e. "One"
+        
         _queryCache = [[NSCache alloc] init];
+        NSLog(@"queryCache after alloc init: %@", _queryCache);
     }
     
     return self;
@@ -48,6 +54,7 @@ NSString * const kCachedDate = @"cachedDate";
     //if (!tbvc.refreshControl.isRefreshing) [NSThread detachNewThreadSelector:@selector(showActivityViewer) toTarget:self withObject:nil];
     
     if( [self cacheNeedsToBeUpdated: queryURL] ){
+        NSLog(@"Cache needed to be updated");
         
     //set currentQueryURL to current query url, so we can use it as a key in the cache later
     self.currentQueryURL = queryURL;
@@ -62,6 +69,7 @@ NSString * const kCachedDate = @"cachedDate";
     
     //else, send useCachedData notification
     else{
+        NSLog(@"Cache DIDNT need to be updated");
         [[NSNotificationCenter defaultCenter] postNotificationName:@"useCachedData" object:nil];
     }
     
@@ -78,7 +86,7 @@ NSString * const kCachedDate = @"cachedDate";
         // the NSError domain string for server status errors is kGTMHTTPFetcherStatusDomain
         int status = [error code];
         
-        NSLog(@"Connection error!");
+        NSLog(@"Connection error! Error code: %d", status);
         
         //TODO: no connection, connection time-out handling
         
@@ -91,11 +99,52 @@ NSString * const kCachedDate = @"cachedDate";
         NSDictionary *results = [NSJSONSerialization JSONObjectWithData:retrievedData options:kNilOptions error:&error];
         NSMutableDictionary *mutableResults = [NSMutableDictionary dictionaryWithDictionary:results];
         
+        //sort results by rating
+        NSMutableArray *resultsArray = [mutableResults[@"results"] mutableCopy];
+        
+        [resultsArray sortUsingComparator:^(NSDictionary* dict1, NSDictionary* dict2) {
+            
+            
+            NSNumber *rating1 = [NSNumber numberWithInt:[[dict1 objectForKey:@"averageUserRating"] intValue]];
+            NSNumber *rating2 = [NSNumber numberWithInt:[[dict2 objectForKey:@"averageUserRating"] intValue]];
+
+            return [rating2 compare: rating1];
+            
+        }];
+        
+       //NSLog(@"sorted results: %@", resultsArray);
+        
+        //Iterate through sorted array, once a new rating is found, extract subset into array of uniform rating
+        //TODO: account for apps with no ratings
+        NSUInteger lowerBound = 0;
+        NSMutableArray *resultsGroupedBySections = [[NSMutableArray alloc] init];
+        for (NSUInteger i = 0; i < resultsArray.count-1; i++) {
+            if ( [resultsArray[i][@"averageUserRating"] intValue] != [resultsArray[i+1][@"averageUserRating"] intValue]) {
+                [resultsGroupedBySections addObject: [resultsArray subarrayWithRange:NSMakeRange(lowerBound, (i-lowerBound)+1)] ];
+                lowerBound = i+1;
+            }
+        }
+        //account for dict at last index
+        NSUInteger lastIndex = resultsArray.count-1;
+        if( [resultsArray[lastIndex-1][@"averageUserRating"] intValue] != [resultsArray[lastIndex][@"averageUserRating"] intValue] )
+            [resultsGroupedBySections addObject: resultsArray[lastIndex]];
+
+        
+        //NSLog(@"results grouped by %d sections: %@", resultsGroupedBySections.count, resultsGroupedBySections);
+        
+        //TODO: download images in this class instead
+    
+        //Replace "results" array with new sorted, sectioned array
+        [mutableResults setObject:resultsGroupedBySections forKey:@"results"];
+        
         //add date of retrievel to result dictionary
         [mutableResults setObject:[NSDate date] forKey: kCachedDate];
         
-        //TODO: store results in Cache, store date of retrieval in Cache
         [self.queryCache setObject: mutableResults forKey:self.currentQueryURL];
+        
+         NSLog(@"retrieving cached date after setting it %@", [self.queryCache objectForKey:self.currentQueryURL][kCachedDate]);
+        
+        //NSLog(@"query Cache: %@", [self.queryCache objectForKey:self.currentQueryURL]);
         
         //send message to reload search VC
         [[NSNotificationCenter defaultCenter] postNotificationName:@"DidLoadNewData"
@@ -107,15 +156,16 @@ NSString * const kCachedDate = @"cachedDate";
 
 -(BOOL)cacheNeedsToBeUpdated:(NSString*)queryURL
 {
-    //TODO: check if cache has results for the given queryParam, and, if so if the results are out of date
+    
+    NSDate *dateOfCache = (NSDate*)[self.queryCache objectForKey:self.currentQueryURL][kCachedDate];
     
     if( ![self.queryCache objectForKey:queryURL] )
         return YES;
     
-    NSDate *dateOfCache = [self.queryCache objectForKey:kCachedDate];
     
-    if( [self hasBeenMoreThanAWeek:dateOfCache] )
+    else if( [self hasBeenMoreThanAWeek: dateOfCache] ){
         return YES;
+    }
     
     return NO;
         
@@ -123,14 +173,71 @@ NSString * const kCachedDate = @"cachedDate";
 
 -(BOOL)hasBeenMoreThanAWeek:(NSDate*)cachedDate
 {
+    NSLog(@"cachedDate: %@", cachedDate);
 
     NSUInteger unitFlags = NSDayCalendarUnit;
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents *components = [calendar components:unitFlags fromDate:cachedDate toDate:[NSDate date] options:0];
-    if ( ([components day] + 1) >= 7)
+    if ( ([components day] + 1) >= 7){
+        NSLog(@"Days between dates: %d", ([components day] + 1));
         return YES;
+    }
     
     return NO;
 }
+
+/*
+
+-(void)downloadAndStoreImages:(NSMutableArray*)sectionedResults
+{
+    
+    NSMutableArray *sectionedResultsWithImages = [[NSMutableArray alloc] initWithCapacity:1];
+    NSMutableArray *thumbnailData = [[NSMutableArray alloc] initWithCapacity:1];
+    
+    for(NSMutableArray *section in sectionedResults)
+        for(int i = 0; i < 1; i++){
+            
+            int sectionNum = [sectionedResults indexOfObject:section];
+            
+            NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithDictionary:section[i]];
+            
+            NSLog(@"thumbnailString %d in section %d: %@", i, sectionNum, tempDict[@"artworkUrl60"]);
+            
+            //download thumbnail and larger image asyncronously
+            dispatch_async(dispatch_get_global_queue(0,0), ^{
+                
+                thumbnailData[i] =  [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: tempDict[@"artworkUrl60"]]];
+//                NSData *largerImageData =  [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: tempDict[@"artworkUrl100"]]];
+                
+                
+                if ( thumbnailData == nil ){
+                    NSLog(@"Issue downloading thumbnail %d in section %d", i, sectionNum);
+                }
+//                if ( largerImageData == nil ){
+//                    NSLog(@"Issue downloading large photo");
+//                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+        
+                    if(thumbnailData) [tempDict setObject:thumbnailData forKey:@"thumbnailImageData"];
+//                    if(largerImageData) [tempDict setObject:largerImageData forKey:@"largerImageData"];
+                    
+                    NSMutableArray *newSectionWithImages = [NSMutableArray arrayWithArray:section];
+                    
+                    [newSectionWithImages replaceObjectAtIndex:i withObject:tempDict];
+                    
+                    [sectionedResultsWithImages addObject:newSectionWithImages];
+                    
+                    //NSLog(@"new section %d with images: %@", i, sectionedResultsWithImages);
+                });
+            });
+            
+        }//end inner loop
+    
+    //NSLog(@"sectioned results with images: %@", sectionedResultsWithImages);
+}
+*/
+
+
 
 @end
