@@ -93,6 +93,60 @@
             </objects>
             <point key="canvasLocation" x="2965" y="-165"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="NKi-zi-2Ow">
+            <objects>
+                <viewController id="I54-B1-BLt" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Epo-30-wcu">
+                        <rect key="frame" x="0.0" y="20" width="768" height="1004"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="g3G-E6-t2z">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="512" id="44Y-gm-IMM"/>
+                                    <constraint firstAttribute="width" constant="512" id="MNa-mq-Ynf"/>
+                                </constraints>
+                            </imageView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WEA-EA-Siq">
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="313" id="Cm5-Hx-R2I"/>
+                                </constraints>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NyS-ml-YhE">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="216" id="I3j-Lv-S4x"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="50"/>
+                                <state key="normal" title="BUY">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="g3G-E6-t2z" firstAttribute="top" secondItem="NyS-ml-YhE" secondAttribute="top" type="default" id="3YC-Tf-0w0"/>
+                            <constraint firstAttribute="trailing" secondItem="NyS-ml-YhE" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="CH2-Dy-6gv"/>
+                            <constraint firstItem="WEA-EA-Siq" firstAttribute="trailing" secondItem="Epo-30-wcu" secondAttribute="trailing" type="default" id="IHd-0Z-iDW"/>
+                            <constraint firstItem="g3G-E6-t2z" firstAttribute="leading" secondItem="Epo-30-wcu" secondAttribute="leading" type="default" id="e1T-2F-rjI"/>
+                            <constraint firstItem="WEA-EA-Siq" firstAttribute="leading" secondItem="Epo-30-wcu" secondAttribute="leading" type="default" id="hjT-uk-TzA"/>
+                            <constraint firstItem="WEA-EA-Siq" firstAttribute="top" secondItem="Epo-30-wcu" secondAttribute="top" type="default" id="lC8-48-Iv3"/>
+                            <constraint firstItem="g3G-E6-t2z" firstAttribute="top" secondItem="Epo-30-wcu" secondAttribute="top" constant="489" id="nNS-tE-B0M"/>
+                            <constraint firstItem="NyS-ml-YhE" firstAttribute="bottom" secondItem="g3G-E6-t2z" secondAttribute="bottom" type="default" id="uTx-P9-brE"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iku-nH-dZl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3776" y="-128"/>
+        </scene>
     </scenes>
     <resources>
         <image name="magnify.png" width="24" height="24"/>
@@ -102,8 +156,8 @@
         <class className="ISFavoritesCollectionViewController" superclassName="UICollectionViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/ISFavoritesCollectionViewController.h"/>
         </class>
-        <class className="ISSearchCollectionViewController" superclassName="UICollectionViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ISSearchCollectionViewController.h"/>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
         </class>
         <class className="UICollectionReusableView" superclassName="UIView">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionReusableView.h"/>
@@ -116,9 +170,6 @@
         </class>
         <class className="UICollectionViewFlowLayout" superclassName="UICollectionViewLayout">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionViewFlowLayout.h"/>
-        </class>
-        <class className="UICollectionViewLayout" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionViewLayout.h"/>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

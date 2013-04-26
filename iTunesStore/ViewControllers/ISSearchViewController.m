@@ -9,6 +9,8 @@
 #import "ISSearchViewController.h"
 #import "ISDataFetchSingleton.h"
 #import "iTunesStoreCell.h"
+#import "ISCollectionHeaderView.h"
+#import "ISDetailsViewController.h"
 
 @interface ISSearchViewController ()
 
@@ -61,6 +63,7 @@
     
     //set delegates, datasource
     self.searchBar.delegate = self;
+    self.searchBar.placeholder = @"Search for apps!";
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
     
@@ -130,8 +133,9 @@
 {
     iTunesStoreCell *cell = [cv dequeueReusableCellWithReuseIdentifier:@"iTunesStoreCell" forIndexPath:indexPath];
 
-    cell.selectedBackgroundView.layer.contents =  (id) [UIImage imageNamed:@"star"].CGImage;
-    cell.selectedBackgroundView.layer.masksToBounds = YES;
+    //TODO: add cell background image?
+//    cell.selectedBackgroundView.layer.contents =  (id) [UIImage imageNamed:@"star"].CGImage;
+//    cell.selectedBackgroundView.layer.masksToBounds = YES;
     
     //Show thumbnail image
     dispatch_async(dispatch_get_global_queue(0,0), ^{
@@ -157,21 +161,6 @@
     
     //Show developer name
     cell.developerName.text = self.searchResults[indexPath.section][indexPath.row][@"artistName"];
-
-    //Download, but don't show isSelected image
-    
-    [cell.selectedView setHidden:YES];
-    dispatch_async(dispatch_get_global_queue(0,0), ^{
-        NSData * isSelectedImageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl100"] ]];
-        if ( isSelectedImageData == nil )
-            NSLog(@"could not download isSelectedImage in cell: %@", indexPath);
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            cell.selectedView.image = [UIImage imageWithData: isSelectedImageData];
-        });
-    });
-
     
     return cell;
 }
@@ -179,9 +168,13 @@
 - (UICollectionReusableView *)collectionView:
  (UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
  {
-     UICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:
+     ISCollectionHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:
                                           UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader" forIndexPath:indexPath];
-     headerView.backgroundColor = [UIColor whiteColor];
+     
+     NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
+     
+     headerView.starRating.text = [NSString stringWithFormat:@"%d Star Rated Apps", starRating];
+
      return headerView;
  }
 
@@ -194,13 +187,15 @@
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
     
     if (cell.isSelected) {
-        cell.backgroundColor = [UIColor clearColor];
-        //[cell.selectedView setHidden:YES];
+        cell.backgroundColor = [UIColor whiteColor];
+        cell.selectedView.image = nil;
         cell.isSelected = NO;
     }
     else{
-        cell.backgroundColor = [UIColor whiteColor];
+        cell.backgroundColor = [UIColor redColor];
+        cell.selectedView.image = [UIImage imageNamed:@"catPhone"];
         cell.isSelected = YES;
+        
     }
     
 }
@@ -208,8 +203,54 @@
     // TODO: Deselect item
         NSLog(@"DID deselect item");
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
-    cell.backgroundColor = [UIColor clearColor];
+    cell.backgroundColor = [UIColor whiteColor];
+    cell.selectedView.image = nil;
     cell.isSelected = NO;
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    NSArray *indexPathArray = [self.collectionView indexPathsForSelectedItems];
+    NSIndexPath *indexPath = indexPathArray[0];
+    
+    if ([segue.identifier isEqualToString:@"segueToDetailVC"]){
+        ISDetailsViewController *dvc = (ISDetailsViewController*)segue.destinationViewController;
+        
+        dvc.appDescrip = self.searchResults[indexPath.section][indexPath.row][@"description"];
+
+    
+        //NSLog(@"app description: %@", dvc.appDescription.text );
+        
+        dvc.appName = self.searchResults[indexPath.section][indexPath.row][@"trackName"];
+        NSLog(@"app name in searchVC: %@", dvc.appName);
+        
+        
+        dvc.buyLink = self.searchResults[indexPath.section][indexPath.row][@"trackViewUrl"];
+        
+        NSLog(@"buy link: %@", dvc.buyLink);
+        
+        //Download and pass
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+            NSData *bigImageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl100"] ]];
+            if ( bigImageData == nil )
+                NSLog(@"could not pass big image to detail view");
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
+                    dvc.bigAppImage = [UIImage imageWithData:bigImageData scale:0.625];
+                    NSLog(@"big image for iPhone");
+                }
+                else{
+                    dvc.bigAppImage = [UIImage imageWithData:bigImageData];
+                    NSLog(@"big image for iPad");
+                }
+                
+            });
+        });
+        
+
+    }
 }
 
 #pragma mark - UISearchBar delegate
