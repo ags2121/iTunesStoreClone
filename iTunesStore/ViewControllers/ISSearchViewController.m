@@ -220,6 +220,7 @@ static NSString * const kThumbnails = @"thumbnails";
     }
     else{
         cell.isSelected = YES;
+        //
     }
 }
 
