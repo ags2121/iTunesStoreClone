@@ -29,6 +29,8 @@
     NSLog(@"app name in dvc: %@", self.appName);
     
     self.textView.text = self.appDescrip;
+    self.appLabel.text = self.appName;
+
     
 }
 
@@ -39,5 +41,12 @@
 }
 
 - (IBAction)buyBtnPressed:(id)sender {
+    
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.buyLink]];
+}
+    
+ 
+
+- (IBAction)favBtnPressed:(id)sender {
 }
 @end

@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 Alex Silva. All rights reserved.
 //
 
+static NSString * const kThumbnails = @"thumbnails";
+static NSString * const kLargeImages = @"large images";
+
 #import "ISSearchViewController.h"
 #import "ISDataFetchSingleton.h"
 #import "iTunesStoreCell.h"
@@ -19,6 +22,7 @@
 @property (strong, nonatomic) UIView *noDataView;
 @property (nonatomic) BOOL isKeyboardShowing;
 @property (strong, nonatomic) UITapGestureRecognizer * tapOnCollectionView;
+@property (strong, nonatomic) NSCache *imageCache;
 
 @end
 
@@ -36,6 +40,22 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    if(!_imageCache){
+        _imageCache = [[NSCache alloc] init];
+        
+        NSString *dictionaryPath = [[NSBundle mainBundle] pathForResource:@"imageCacheInitData" ofType:@"plist"];
+
+        [self.imageCache setObject:[NSMutableDictionary dictionaryWithContentsOfFile:dictionaryPath] forKey:kThumbnails];
+        
+        [self.imageCache setObject:[NSMutableDictionary dictionaryWithContentsOfFile:dictionaryPath] forKey:kLargeImages];
+        
+                
+        //[[self.imageCache objectForKey:@"thumbnails"][@"0"] setObject:@"test" forKey:@"1"];
+        
+    
+        
+    }
     
     //register VC as accepting of notifications named "DidLoadNewData" from dataFetchSingleton
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -132,23 +152,32 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     iTunesStoreCell *cell = [cv dequeueReusableCellWithReuseIdentifier:@"iTunesStoreCell" forIndexPath:indexPath];
-
-    //TODO: add cell background image?
-//    cell.selectedBackgroundView.layer.contents =  (id) [UIImage imageNamed:@"star"].CGImage;
-//    cell.selectedBackgroundView.layer.masksToBounds = YES;
     
-    //Show thumbnail image
-    dispatch_async(dispatch_get_global_queue(0,0), ^{
-        NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl60"] ]];
-        if ( thumbnailData == nil )
-            NSLog(@"could not download thumbnail in cell: %@", indexPath);
-                                                                                               
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
+    NSString *section = [@(indexPath.section) stringValue];
+    NSString *row = [@(indexPath.row) stringValue];
+    
+    //if a thumbnail exists, grab from cache
+    if( [self.imageCache objectForKey:kThumbnails][section][row] ){
+        
+        NSData *thumbnailData = [self.imageCache objectForKey:kThumbnails][section][row];
+        cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
+    }
+    
+    else{
+        //else, download and store thumbnail image in cache
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+            NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl60"] ]];
+            if ( thumbnailData == nil )
+                NSLog(@"could not download thumbnail in cell: %@", indexPath);
+                                                                                                   
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
+                [[self.imageCache objectForKey:kThumbnails][section] setObject:thumbnailData forKey:row];
+            });
         });
-    });
-    
+    }
+        
     //Show star rating
     NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
     cell.starRatingImage.image = [UIImage imageNamed: [NSString stringWithFormat:@"%dStar", starRating]];
@@ -214,18 +243,16 @@
     NSIndexPath *indexPath = indexPathArray[0];
     
     if ([segue.identifier isEqualToString:@"segueToDetailVC"]){
+        
         ISDetailsViewController *dvc = (ISDetailsViewController*)segue.destinationViewController;
-        
-        dvc.appDescrip = self.searchResults[indexPath.section][indexPath.row][@"description"];
-
     
-        //NSLog(@"app description: %@", dvc.appDescription.text );
-        
+        dvc.appDescrip = self.searchResults[indexPath.section][indexPath.row][@"description"];
         dvc.appName = self.searchResults[indexPath.section][indexPath.row][@"trackName"];
+        
         NSLog(@"app name in searchVC: %@", dvc.appName);
         
-        
-        dvc.buyLink = self.searchResults[indexPath.section][indexPath.row][@"trackViewUrl"];
+        NSString *replaceHTTPURL = [self.searchResults[indexPath.section][indexPath.row][@"trackViewUrl"] stringByReplacingOccurrencesOfString:@"https" withString:@"itms"];
+        dvc.buyLink = replaceHTTPURL;
         
         NSLog(@"buy link: %@", dvc.buyLink);
         
@@ -238,18 +265,17 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
-                    dvc.bigAppImage = [UIImage imageWithData:bigImageData scale:0.625];
+                    dvc.largeImageView.image = [UIImage imageWithData:bigImageData scale:0.625];
                     NSLog(@"big image for iPhone");
                 }
                 else{
-                    dvc.bigAppImage = [UIImage imageWithData:bigImageData];
+                    dvc.largeImageView.image = [UIImage imageWithData:bigImageData];
                     NSLog(@"big image for iPad");
                 }
                 
             });
         });
         
-
     }
 }
 

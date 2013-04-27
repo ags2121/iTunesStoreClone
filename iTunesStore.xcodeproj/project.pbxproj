@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A92021F4172B5259008E8C6A /* imageCacheInitData.plist in Resources */ = {isa = PBXBuildFile; fileRef = A92021F3172B5259008E8C6A /* imageCacheInitData.plist */; };
 		A9263C04172993F7009844D4 /* iTunesStoreCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A9263C03172993F7009844D4 /* iTunesStoreCell.m */; };
 		A9263C06172996C5009844D4 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9263C05172996C5009844D4 /* QuartzCore.framework */; };
 		A9263C191729A238009844D4 /* 0Star@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A9263C131729A238009844D4 /* 0Star@2x.png */; };
@@ -49,6 +50,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A92021F3172B5259008E8C6A /* imageCacheInitData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = imageCacheInitData.plist; sourceTree = "<group>"; };
 		A9263C02172993F7009844D4 /* iTunesStoreCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTunesStoreCell.h; path = View/iTunesStoreCell.h; sourceTree = "<group>"; };
 		A9263C03172993F7009844D4 /* iTunesStoreCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTunesStoreCell.m; path = View/iTunesStoreCell.m; sourceTree = "<group>"; };
 		A9263C05172996C5009844D4 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -147,6 +149,7 @@
 				A92DEC8A17283FC700FE1293 /* ISDataFetchSingleton.h */,
 				A92DEC8B17283FC700FE1293 /* ISDataFetchSingleton.m */,
 				A92DEC8D1728402400FE1293 /* CoreDataModel.xcdatamodeld */,
+				A92021F3172B5259008E8C6A /* imageCacheInitData.plist */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -313,6 +316,7 @@
 				A9263C2C172A02A8009844D4 /* NoDataView.xib in Resources */,
 				A9263C2E172A12DF009844D4 /* catPhone@2x.png in Resources */,
 				A9263C30172A12F8009844D4 /* catPhone.png in Resources */,
+				A92021F4172B5259008E8C6A /* imageCacheInitData.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
