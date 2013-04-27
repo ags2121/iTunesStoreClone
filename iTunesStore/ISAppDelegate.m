@@ -7,6 +7,9 @@
 //
 
 #import "ISAppDelegate.h"
+#import "ISDataFetchSingleton.h"
+#import "ISDetailsViewController.h"
+#import "ISFavoritesViewController.h"
 
 @implementation ISAppDelegate
 
@@ -17,6 +20,14 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+
+     UITabBarController *tbc = (UITabBarController*)self.window.rootViewController;
+    ISFavoritesViewController *fvc = [tbc.viewControllers lastObject];
+    fvc.managedObjectContext = self.managedObjectContext;
+    NSLog(@"fvc's object context: %@", fvc.managedObjectContext);
+    // Set up the data handler singleton
+    [[ISDataFetchSingleton sharedInstance] setManagedObjectContext:self.managedObjectContext];
+    
     return YES;
 }
 							

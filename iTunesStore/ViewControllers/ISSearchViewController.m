@@ -180,6 +180,10 @@ static NSString * const kThumbnails = @"thumbnails";
             });
         });
     }
+    
+    //round thumbnail corners
+    cell.thumbnail.layer.cornerRadius = 10;
+    cell.thumbnail.clipsToBounds = YES;
         
     //Show star rating
     NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
@@ -252,13 +256,16 @@ static NSString * const kThumbnails = @"thumbnails";
         //pass values to properties
         dvc.appDescrip = self.searchResults[indexPath.section][indexPath.row][@"description"];
         dvc.appName = self.searchResults[indexPath.section][indexPath.row][@"trackName"];
-        
-        NSLog(@"app name in searchVC: %@", dvc.appName);
-        
+
         NSString *replaceHTTPURL = [self.searchResults[indexPath.section][indexPath.row][@"trackViewUrl"] stringByReplacingOccurrencesOfString:@"https" withString:@"itms"];
         dvc.buyLink = replaceHTTPURL;
         
-        NSLog(@"buy link: %@", dvc.buyLink);
+        //pass dictionary of data model properties so user can add app to favorites
+        NSNumber *starRating = [NSNumber numberWithInt: [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue]];
+        
+        NSDictionary *appInfoForCoreData = @{@"appName" : dvc.appName, @"appDescription" : dvc.appDescrip, @"buyLink" : dvc.buyLink, @"starRating" : starRating, @"developerName" : cell.developerName.text, @"appPrice" : cell.price.text, @"thumbnail" : UIImagePNGRepresentation(cell.thumbnail.image)};
+        
+        dvc.appInfoForCoreData = appInfoForCoreData;
         
         //Download and pass
         dispatch_async(dispatch_get_global_queue(0,0), ^{

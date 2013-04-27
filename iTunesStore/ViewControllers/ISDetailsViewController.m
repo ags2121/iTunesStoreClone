@@ -7,6 +7,7 @@
 //
 
 #import "ISDetailsViewController.h"
+#import "ISDataFetchSingleton.h"
 
 @interface ISDetailsViewController ()
 
@@ -32,6 +33,8 @@
     self.appLabel.text = self.appName;
     self.appLabel.layer.cornerRadius = 10;
     self.appLabel.clipsToBounds = YES;
+    
+    //TODO: grab managed object context
 }
 
 - (void)didReceiveMemoryWarning
@@ -47,9 +50,17 @@
  
 
 - (IBAction)favBtnPressed:(id)sender {
+    NSLog(@"fav btn pressed");
+    
+    if ( ! [[ISDataFetchSingleton sharedInstance] doesAppExistInDB:self.appName] ){
+        NSLog(@"app does not exist in core data, we will add it");
+        [[ISDataFetchSingleton sharedInstance] addAppToFavorites:self.appInfoForCoreData];
+    }
+    
 }
 
 - (IBAction)dismissBtnPressed:(id)sender {
     [self.delegate detailsViewDidDismiss:self];
 }
+
 @end

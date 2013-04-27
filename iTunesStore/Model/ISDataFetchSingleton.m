@@ -8,8 +8,8 @@
 
 NSString * const kCachedDate = @"cachedDate";
 
-
 #import "ISDataFetchSingleton.h"
+#import "App.h"
 
 @interface ISDataFetchSingleton ()
 
@@ -22,7 +22,6 @@ NSString * const kCachedDate = @"cachedDate";
 
 + (ISDataFetchSingleton *) sharedInstance {
 
-    
     static dispatch_once_t _p;
     
     __strong static id _singleton = nil;
@@ -32,7 +31,6 @@ NSString * const kCachedDate = @"cachedDate";
     });
     
     return _singleton;
-    
 }
 
 - (id)init
@@ -188,58 +186,69 @@ NSString * const kCachedDate = @"cachedDate";
     return NO;
 }
 
-/*
+#pragma mark - Core data methods 
 
--(void)downloadAndStoreImages:(NSMutableArray*)sectionedResults
+- (void)addAppToFavorites:(NSDictionary *)appInfo
 {
+    // Create a new instance of App object
+	App *app = (App *)[NSEntityDescription insertNewObjectForEntityForName:@"App"
+                                                    inManagedObjectContext:self.managedObjectContext];
+    app.appName = appInfo[@"appName"];
+    app.appPrice = appInfo[@"appPrice"];
+    app.appDescription = appInfo[@"appDescription"];
+    app.thumbnail = appInfo[@"thumbnail"];
+    app.starRating = appInfo[@"starRating"];
+    app.buyLink = appInfo[@"buyLink"];
+    app.developerName = appInfo[@"developerName"];
     
-    NSMutableArray *sectionedResultsWithImages = [[NSMutableArray alloc] initWithCapacity:1];
-    NSMutableArray *thumbnailData = [[NSMutableArray alloc] initWithCapacity:1];
-    
-    for(NSMutableArray *section in sectionedResults)
-        for(int i = 0; i < 1; i++){
-            
-            int sectionNum = [sectionedResults indexOfObject:section];
-            
-            NSMutableDictionary *tempDict = [NSMutableDictionary dictionaryWithDictionary:section[i]];
-            
-            NSLog(@"thumbnailString %d in section %d: %@", i, sectionNum, tempDict[@"artworkUrl60"]);
-            
-            //download thumbnail and larger image asyncronously
-            dispatch_async(dispatch_get_global_queue(0,0), ^{
-                
-                thumbnailData[i] =  [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: tempDict[@"artworkUrl60"]]];
-//                NSData *largerImageData =  [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: tempDict[@"artworkUrl100"]]];
-                
-                
-                if ( thumbnailData == nil ){
-                    NSLog(@"Issue downloading thumbnail %d in section %d", i, sectionNum);
-                }
-//                if ( largerImageData == nil ){
-//                    NSLog(@"Issue downloading large photo");
-//                }
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-        
-                    if(thumbnailData) [tempDict setObject:thumbnailData forKey:@"thumbnailImageData"];
-//                    if(largerImageData) [tempDict setObject:largerImageData forKey:@"largerImageData"];
-                    
-                    NSMutableArray *newSectionWithImages = [NSMutableArray arrayWithArray:section];
-                    
-                    [newSectionWithImages replaceObjectAtIndex:i withObject:tempDict];
-                    
-                    [sectionedResultsWithImages addObject:newSectionWithImages];
-                    
-                    //NSLog(@"new section %d with images: %@", i, sectionedResultsWithImages);
-                });
-            });
-            
-        }//end inner loop
-    
-    //NSLog(@"sectioned results with images: %@", sectionedResultsWithImages);
+    NSError *error = nil;
+	// Commit the change to on-disk store
+	if (![self.managedObjectContext save:&error]) {
+		//TODO: Handle the error.
+	}
 }
-*/
+- (void)removeAppFromFavorites:(NSString *)appName
+{
+    NSError *error;
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"App"];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"appName == %@", appName];
+    fetchRequest.propertiesToFetch = [NSArray arrayWithObjects:@"appName", nil];
+    NSArray *items = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    [self.managedObjectContext deleteObject:items[0]];
+    
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error deleting %@ - error:%@", appName, error);
+    }
+    
+}
 
+- (void) deleteAllApps
+{
+    NSError *error;
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"App"];
+    NSArray *items = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    for (App *managedObject in items) {
+        [self.managedObjectContext deleteObject:managedObject];
+        NSLog(@"%@ object deleted", managedObject.appName);
+    }
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error deleting %@ - error:%@",@"App",error);
+    }
+}
 
-
+- (BOOL)doesAppExistInDB:(NSString*)appName
+{
+    // Create a new App object (if needed)
+   	NSError *error = nil;
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"App"];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"appName == %@", appName];
+    fetchRequest.propertiesToFetch = [NSArray arrayWithObjects:@"appName", nil];
+    
+    NSArray *fetchedItems = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    if (fetchedItems.count == 0)
+        return NO;
+    
+    return YES;
+}
+    
 @end

@@ -1,18 +1,24 @@
 //
-//  ISFavoritesCollectionViewController.m
+//  ISFavoritesViewController.m
 //  iTunesStore
 //
-//  Created by Alex Silva on 4/24/13.
+//  Created by Alex Silva on 4/27/13.
 //  Copyright (c) 2013 Alex Silva. All rights reserved.
 //
 
-#import "ISFavoritesCollectionViewController.h"
+#import "ISFavoritesViewController.h"
+#import "ISDataFetchSingleton.h"
+#import "iTunesStoreCell.h"
+#import "ISCollectionHeaderView.h"
+#import "ISDetailsViewController.h"
 
-@interface ISFavoritesCollectionViewController ()
+@interface ISFavoritesViewController ()
+
+@property (strong, nonatomic) UIView *noDataView;
 
 @end
 
-@implementation ISFavoritesCollectionViewController
+@implementation ISFavoritesViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
