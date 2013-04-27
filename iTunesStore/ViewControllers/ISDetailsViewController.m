@@ -30,8 +30,8 @@
     
     self.textView.text = self.appDescrip;
     self.appLabel.text = self.appName;
-
-    
+    self.appLabel.layer.cornerRadius = 10;
+    self.appLabel.clipsToBounds = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -41,12 +41,15 @@
 }
 
 - (IBAction)buyBtnPressed:(id)sender {
-    
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.buyLink]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.buyLink]];
 }
     
  
 
 - (IBAction)favBtnPressed:(id)sender {
+}
+
+- (IBAction)dismissBtnPressed:(id)sender {
+    [self.delegate detailsViewDidDismiss:self];
 }
 @end

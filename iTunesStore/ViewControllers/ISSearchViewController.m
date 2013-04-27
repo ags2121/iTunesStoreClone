@@ -7,7 +7,6 @@
 //
 
 static NSString * const kThumbnails = @"thumbnails";
-static NSString * const kLargeImages = @"large images";
 
 #import "ISSearchViewController.h"
 #import "ISDataFetchSingleton.h"
@@ -22,7 +21,8 @@ static NSString * const kLargeImages = @"large images";
 @property (strong, nonatomic) UIView *noDataView;
 @property (nonatomic) BOOL isKeyboardShowing;
 @property (strong, nonatomic) UITapGestureRecognizer * tapOnCollectionView;
-@property (strong, nonatomic) NSCache *imageCache;
+@property (strong, nonatomic) NSCache *thumbnailCache;
+@property (strong, nonatomic) NSIndexPath *indexPathForSelectedItem;
 
 @end
 
@@ -41,21 +41,9 @@ static NSString * const kLargeImages = @"large images";
 {
     [super viewDidLoad];
     
-    if(!_imageCache){
-        _imageCache = [[NSCache alloc] init];
         
-        NSString *dictionaryPath = [[NSBundle mainBundle] pathForResource:@"imageCacheInitData" ofType:@"plist"];
-
-        [self.imageCache setObject:[NSMutableDictionary dictionaryWithContentsOfFile:dictionaryPath] forKey:kThumbnails];
+        //[[self.thumbnailCache objectForKey:@"thumbnails"][@"0"] setObject:@"test" forKey:@"1"];
         
-        [self.imageCache setObject:[NSMutableDictionary dictionaryWithContentsOfFile:dictionaryPath] forKey:kLargeImages];
-        
-                
-        //[[self.imageCache objectForKey:@"thumbnails"][@"0"] setObject:@"test" forKey:@"1"];
-        
-    
-        
-    }
     
     //register VC as accepting of notifications named "DidLoadNewData" from dataFetchSingleton
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -127,8 +115,19 @@ static NSString * const kLargeImages = @"large images";
     
     //NSLog(@"Print data from cache: %@", self.searchResults);
     
+    //init thumbnailCache if its nil
+    if(!_thumbnailCache) _thumbnailCache = [[NSCache alloc] init];
+    
+    //create data structure for query, if not present
+    if (! [self.thumbnailCache objectForKey:self.currentQuery] ) {
+        NSString *dictionaryPath = [[NSBundle mainBundle] pathForResource:@"imageCacheInitData" ofType:@"plist"];
+        [self.thumbnailCache setObject:[NSMutableDictionary dictionaryWithContentsOfFile:dictionaryPath] forKey:self.currentQuery];
+    }
+    
+    //load collectionview data
     [self.collectionView reloadData];
     
+    //remove placeholder view to reveal results
     [UIView animateWithDuration:0.8 animations:^{
         self.noDataView.alpha = 0;
     }completion:^(BOOL finished){
@@ -157,9 +156,9 @@ static NSString * const kLargeImages = @"large images";
     NSString *row = [@(indexPath.row) stringValue];
     
     //if a thumbnail exists, grab from cache
-    if( [self.imageCache objectForKey:kThumbnails][section][row] ){
+    if( [self.thumbnailCache objectForKey:self.currentQuery][section][row] ){
         
-        NSData *thumbnailData = [self.imageCache objectForKey:kThumbnails][section][row];
+        NSData *thumbnailData = [self.thumbnailCache objectForKey:self.currentQuery][section][row];
         cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
     }
     
@@ -173,7 +172,7 @@ static NSString * const kLargeImages = @"large images";
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
-                [[self.imageCache objectForKey:kThumbnails][section] setObject:thumbnailData forKey:row];
+                [[self.thumbnailCache objectForKey:self.currentQuery][section] setObject:thumbnailData forKey:row];
             });
         });
     }
@@ -212,6 +211,8 @@ static NSString * const kLargeImages = @"large images";
 {
     // TODO: Select Item
     
+    self.indexPathForSelectedItem = indexPath;
+    
     NSLog(@"DID select item");
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
     
@@ -222,12 +223,10 @@ static NSString * const kLargeImages = @"large images";
     }
     else{
         cell.backgroundColor = [UIColor redColor];
-        cell.selectedView.image = [UIImage imageNamed:@"catPhone"];
         cell.isSelected = YES;
-        
     }
-    
 }
+
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     // TODO: Deselect item
         NSLog(@"DID deselect item");
@@ -241,11 +240,19 @@ static NSString * const kLargeImages = @"large images";
 {
     NSArray *indexPathArray = [self.collectionView indexPathsForSelectedItems];
     NSIndexPath *indexPath = indexPathArray[0];
+    iTunesStoreCell *cell = (iTunesStoreCell*)[self.collectionView cellForItemAtIndexPath:indexPath];
     
     if ([segue.identifier isEqualToString:@"segueToDetailVC"]){
         
+        //add cat image to cell
+        cell.selectedView.image = [UIImage imageNamed:@"catPhone"];
+        
         ISDetailsViewController *dvc = (ISDetailsViewController*)segue.destinationViewController;
-    
+        
+        //set delegate
+        dvc.delegate = self;
+        
+        //pass values to properties
         dvc.appDescrip = self.searchResults[indexPath.section][indexPath.row][@"description"];
         dvc.appName = self.searchResults[indexPath.section][indexPath.row][@"trackName"];
         
@@ -266,10 +273,14 @@ static NSString * const kLargeImages = @"large images";
                 
                 if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
                     dvc.largeImageView.image = [UIImage imageWithData:bigImageData scale:0.625];
+                    dvc.largeImageView.layer.cornerRadius = 10;
+                    dvc.largeImageView.clipsToBounds = YES;
                     NSLog(@"big image for iPhone");
                 }
                 else{
                     dvc.largeImageView.image = [UIImage imageWithData:bigImageData];
+                    dvc.largeImageView.layer.cornerRadius = 10;
+                    dvc.largeImageView.clipsToBounds = YES;
                     NSLog(@"big image for iPad");
                 }
                 
@@ -321,8 +332,28 @@ static NSString * const kLargeImages = @"large images";
 
 -(void)handleTapOnCollectionView:(UITapGestureRecognizer *)recognizer
 {
-
     [self.searchBar resignFirstResponder];
+}
+
+#pragma mark - ModalDelegate delegate
+
+- (void)detailsViewDidDismiss: (ISDetailsViewController*)dvc
+{
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    [self deselectItemAtIndexPath:self.indexPathForSelectedItem animated:YES];
+    
+}
+
+- (void)deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated
+{
+    iTunesStoreCell *cell = (iTunesStoreCell*)[self.collectionView cellForItemAtIndexPath:indexPath];
+    [UIView animateWithDuration:1.2 animations:^{
+        
+        cell.selectedView.alpha = 0;
+        
+    }completion:^(BOOL finished){
+        cell.selectedView = nil;
+    }];
 }
 
 

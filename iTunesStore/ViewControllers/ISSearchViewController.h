@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ISDetailsViewController.h"
 
-@interface ISSearchViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UISearchDisplayDelegate, UIGestureRecognizerDelegate>
+@interface ISSearchViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UISearchBarDelegate, UISearchDisplayDelegate, UIGestureRecognizerDelegate, ModalDelegate>
 
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;

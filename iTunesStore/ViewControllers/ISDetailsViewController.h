@@ -8,11 +8,21 @@
 
 #import <UIKit/UIKit.h>
 
+@class ISDetailsViewController;
+
+@protocol ModalDelegate <NSObject>
+
+- (void)detailsViewDidDismiss: (ISDetailsViewController*)dvc;
+
+@end
+
 @interface ISDetailsViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 @property (weak, nonatomic) IBOutlet UILabel *appLabel;
 @property (weak, nonatomic) IBOutlet UIButton *buyBtn;
 @property (weak, nonatomic) IBOutlet UIButton *favBtn;
+@property (weak, nonatomic) IBOutlet UIButton *dismissVCbtn;
+
 
 @property (weak, nonatomic) IBOutlet UIImageView *largeImageView;
 
@@ -20,6 +30,11 @@
 @property (strong, nonatomic) NSString *appName;
 @property (strong, nonatomic) NSString *appDescrip;
 
+@property (nonatomic, weak) id <ModalDelegate> delegate;
+
 - (IBAction)favBtnPressed:(id)sender;
+
+@property (weak, nonatomic) IBOutlet UIButton *dismissBtnPressed;
+
 
 @end
