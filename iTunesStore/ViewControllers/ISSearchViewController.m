@@ -160,39 +160,39 @@ static NSString * const kThumbnails = @"thumbnails";
     
     
     //if a thumbnail exists, grab from cache
-    if( [[[self.thumbnailCache objectForKey:self.currentQuery] objectForKey: section] objectForKey: row] ){
+    if( [self.thumbnailCache objectForKey:self.currentQuery][section][row] ){
         
-        NSData *thumbnailData = [[[self.thumbnailCache objectForKey:self.currentQuery] objectForKey: section] objectForKey: row];
+        NSData *thumbnailData = [self.thumbnailCache objectForKey:self.currentQuery][section][row];
         cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
     }
     
     else{
         //else, download and store thumbnail image in cache
         dispatch_async(dispatch_get_global_queue(0,0), ^{
-            NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"artworkUrl60"] ]];
+            NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl60"]]];
             if ( thumbnailData == nil )
                 NSLog(@"could not download thumbnail in cell: %@", indexPath);
                                                                                                    
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
-                [[[self.thumbnailCache objectForKey:self.currentQuery] objectForKey: section] setObject:thumbnailData forKey:row];
+                [[self.thumbnailCache objectForKey:self.currentQuery][section] setObject:thumbnailData forKey:row];
             });
         });
     }
         
     //Show star rating
-    NSUInteger starRating = [[self.searchResults[indexPath.section][indexPath.row] objectForKey: @"averageUserRating"] intValue];
+    NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
     cell.starRatingImage.image = [UIImage imageNamed: [NSString stringWithFormat:@"%dStar", starRating]];
     
     //Show price
-    cell.price.text = [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"formattedPrice"];
+    cell.price.text = self.searchResults[indexPath.section][indexPath.row][@"formattedPrice"];
 
     //Show app name
-    cell.appName.text = [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"trackName"];
+    cell.appName.text = self.searchResults[indexPath.section][indexPath.row][@"trackName"];
     
     //Show developer name
-    cell.developerName.text = [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"artistName"];
+    cell.developerName.text = self.searchResults[indexPath.section][indexPath.row][@"artistName"];
     
     return cell;
 }
