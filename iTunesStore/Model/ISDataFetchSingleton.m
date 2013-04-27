@@ -124,10 +124,12 @@ NSString * const kCachedDate = @"cachedDate";
                 lowerBound = i+1;
             }
         }
-        //account for dict at last index
+        //account for dict at last index, put it in its own section array
         NSUInteger lastIndex = resultsArray.count-1;
-        if( [resultsArray[lastIndex-1][@"averageUserRating"] intValue] != [resultsArray[lastIndex][@"averageUserRating"] intValue] )
-            [resultsGroupedBySections addObject: resultsArray[lastIndex]];
+        if( [resultsArray[lastIndex-1][@"averageUserRating"] intValue] != [resultsArray[lastIndex][@"averageUserRating"] intValue] ){
+            [resultsGroupedBySections addObject: @[resultsArray[lastIndex]]];
+            NSLog(@"last object: %@", [resultsGroupedBySections lastObject]);
+        }
 
         
         //NSLog(@"results grouped by %d sections: %@", resultsGroupedBySections.count, resultsGroupedBySections);

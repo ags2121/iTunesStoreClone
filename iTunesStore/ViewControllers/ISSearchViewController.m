@@ -155,40 +155,44 @@ static NSString * const kThumbnails = @"thumbnails";
     NSString *section = [@(indexPath.section) stringValue];
     NSString *row = [@(indexPath.row) stringValue];
     
+    NSLog(@"section: %@", section);
+    NSLog(@"row: %@", row);
+    
+    
     //if a thumbnail exists, grab from cache
-    if( [self.thumbnailCache objectForKey:self.currentQuery][section][row] ){
+    if( [[[self.thumbnailCache objectForKey:self.currentQuery] objectForKey: section] objectForKey: row] ){
         
-        NSData *thumbnailData = [self.thumbnailCache objectForKey:self.currentQuery][section][row];
+        NSData *thumbnailData = [[[self.thumbnailCache objectForKey:self.currentQuery] objectForKey: section] objectForKey: row];
         cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
     }
     
     else{
         //else, download and store thumbnail image in cache
         dispatch_async(dispatch_get_global_queue(0,0), ^{
-            NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl60"] ]];
+            NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"artworkUrl60"] ]];
             if ( thumbnailData == nil )
                 NSLog(@"could not download thumbnail in cell: %@", indexPath);
                                                                                                    
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
-                [[self.thumbnailCache objectForKey:self.currentQuery][section] setObject:thumbnailData forKey:row];
+                [[[self.thumbnailCache objectForKey:self.currentQuery] objectForKey: section] setObject:thumbnailData forKey:row];
             });
         });
     }
         
     //Show star rating
-    NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
+    NSUInteger starRating = [[self.searchResults[indexPath.section][indexPath.row] objectForKey: @"averageUserRating"] intValue];
     cell.starRatingImage.image = [UIImage imageNamed: [NSString stringWithFormat:@"%dStar", starRating]];
     
     //Show price
-    cell.price.text = self.searchResults[indexPath.section][indexPath.row][@"formattedPrice"];
+    cell.price.text = [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"formattedPrice"];
 
     //Show app name
-    cell.appName.text = self.searchResults[indexPath.section][indexPath.row][@"trackName"];
+    cell.appName.text = [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"trackName"];
     
     //Show developer name
-    cell.developerName.text = self.searchResults[indexPath.section][indexPath.row][@"artistName"];
+    cell.developerName.text = [self.searchResults[indexPath.section][indexPath.row] objectForKey: @"artistName"];
     
     return cell;
 }
@@ -199,7 +203,7 @@ static NSString * const kThumbnails = @"thumbnails";
      ISCollectionHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:
                                           UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader" forIndexPath:indexPath];
      
-     NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
+     NSUInteger starRating = [[self.searchResults[indexPath.section][indexPath.row] objectForKey: @"averageUserRating"] intValue];
      
      headerView.starRating.text = [NSString stringWithFormat:@"%d Star Rated Apps", starRating];
 
@@ -210,7 +214,6 @@ static NSString * const kThumbnails = @"thumbnails";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     // TODO: Select Item
-    
     NSLog(@"DID select item");
     self.indexPathForSelectedItem = indexPath;
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
@@ -220,7 +223,6 @@ static NSString * const kThumbnails = @"thumbnails";
     }
     else{
         cell.isSelected = YES;
-        //
     }
 }
 

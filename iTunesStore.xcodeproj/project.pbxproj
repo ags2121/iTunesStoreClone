@@ -29,8 +29,9 @@
 		A9263C36172A1786009844D4 /* ISDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A9263C35172A1786009844D4 /* ISDetailsViewController.m */; };
 		A92DEC8817283A9700FE1293 /* ISFavoritesCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A92DEC8717283A9700FE1293 /* ISFavoritesCollectionViewController.m */; };
 		A92DEC8C17283FC700FE1293 /* ISDataFetchSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = A92DEC8B17283FC700FE1293 /* ISDataFetchSingleton.m */; };
-		A92DEC8F1728402400FE1293 /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A92DEC8D1728402400FE1293 /* CoreDataModel.xcdatamodeld */; };
 		A92DEC931728431600FE1293 /* GTMHTTPFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = A92DEC91172842AB00FE1293 /* GTMHTTPFetcher.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A93BBF95172B8AE60049237D /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A93BBF94172B8AE60049237D /* CoreData.framework */; };
+		A93BBFC6172B91220049237D /* iTunesStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A93BBFC4172B91220049237D /* iTunesStore.xcdatamodeld */; };
 		A98F9D911728E4C20042D25C /* ISSearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A98F9D901728E4C20042D25C /* ISSearchViewController.m */; };
 		A997AF1417273E44009D5D13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A997AF1317273E44009D5D13 /* UIKit.framework */; };
 		A997AF1617273E44009D5D13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A997AF1517273E44009D5D13 /* Foundation.framework */; };
@@ -77,9 +78,10 @@
 		A92DEC8717283A9700FE1293 /* ISFavoritesCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISFavoritesCollectionViewController.m; path = ViewControllers/ISFavoritesCollectionViewController.m; sourceTree = "<group>"; };
 		A92DEC8A17283FC700FE1293 /* ISDataFetchSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISDataFetchSingleton.h; path = Model/ISDataFetchSingleton.h; sourceTree = "<group>"; };
 		A92DEC8B17283FC700FE1293 /* ISDataFetchSingleton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISDataFetchSingleton.m; path = Model/ISDataFetchSingleton.m; sourceTree = "<group>"; };
-		A92DEC8E1728402400FE1293 /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 		A92DEC90172842AB00FE1293 /* GTMHTTPFetcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GTMHTTPFetcher.h; sourceTree = "<group>"; };
 		A92DEC91172842AB00FE1293 /* GTMHTTPFetcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GTMHTTPFetcher.m; sourceTree = "<group>"; };
+		A93BBF94172B8AE60049237D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		A93BBFC5172B91220049237D /* iTunesStore.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = iTunesStore.xcdatamodel; sourceTree = "<group>"; };
 		A98F9D8F1728E4C20042D25C /* ISSearchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISSearchViewController.h; path = ViewControllers/ISSearchViewController.h; sourceTree = "<group>"; };
 		A98F9D901728E4C20042D25C /* ISSearchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISSearchViewController.m; path = ViewControllers/ISSearchViewController.m; sourceTree = "<group>"; };
 		A997AF1017273E44009D5D13 /* iTunesStore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iTunesStore.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,6 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A93BBF95172B8AE60049237D /* CoreData.framework in Frameworks */,
 				A9263C06172996C5009844D4 /* QuartzCore.framework in Frameworks */,
 				A997AF1417273E44009D5D13 /* UIKit.framework in Frameworks */,
 				A997AF1617273E44009D5D13 /* Foundation.framework in Frameworks */,
@@ -148,8 +151,8 @@
 			children = (
 				A92DEC8A17283FC700FE1293 /* ISDataFetchSingleton.h */,
 				A92DEC8B17283FC700FE1293 /* ISDataFetchSingleton.m */,
-				A92DEC8D1728402400FE1293 /* CoreDataModel.xcdatamodeld */,
 				A92021F3172B5259008E8C6A /* imageCacheInitData.plist */,
+				A93BBFC4172B91220049237D /* iTunesStore.xcdatamodeld */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -157,7 +160,6 @@
 		A997AF0717273E44009D5D13 = {
 			isa = PBXGroup;
 			children = (
-				A9263C05172996C5009844D4 /* QuartzCore.framework */,
 				A997AF1917273E44009D5D13 /* iTunesStore */,
 				A997AF1217273E44009D5D13 /* Frameworks */,
 				A997AF1117273E44009D5D13 /* Products */,
@@ -175,6 +177,8 @@
 		A997AF1217273E44009D5D13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A93BBF94172B8AE60049237D /* CoreData.framework */,
+				A9263C05172996C5009844D4 /* QuartzCore.framework */,
 				A997AF1317273E44009D5D13 /* UIKit.framework */,
 				A997AF1517273E44009D5D13 /* Foundation.framework */,
 				A997AF1717273E44009D5D13 /* CoreGraphics.framework */,
@@ -332,11 +336,11 @@
 				A997AF2417273E44009D5D13 /* ISAppDelegate.m in Sources */,
 				A92DEC8817283A9700FE1293 /* ISFavoritesCollectionViewController.m in Sources */,
 				A92DEC8C17283FC700FE1293 /* ISDataFetchSingleton.m in Sources */,
-				A92DEC8F1728402400FE1293 /* CoreDataModel.xcdatamodeld in Sources */,
 				A98F9D911728E4C20042D25C /* ISSearchViewController.m in Sources */,
 				A9263C04172993F7009844D4 /* iTunesStoreCell.m in Sources */,
 				A9263C33172A156E009844D4 /* ISCollectionHeaderView.m in Sources */,
 				A9263C36172A1786009844D4 /* ISDetailsViewController.m in Sources */,
+				A93BBFC6172B91220049237D /* iTunesStore.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -474,14 +478,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		A92DEC8D1728402400FE1293 /* CoreDataModel.xcdatamodeld */ = {
+		A93BBFC4172B91220049237D /* iTunesStore.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				A92DEC8E1728402400FE1293 /* CoreDataModel.xcdatamodel */,
+				A93BBFC5172B91220049237D /* iTunesStore.xcdatamodel */,
 			);
-			currentVersion = A92DEC8E1728402400FE1293 /* CoreDataModel.xcdatamodel */;
-			name = CoreDataModel.xcdatamodeld;
-			path = Model/CoreDataModel.xcdatamodeld;
+			currentVersion = A93BBFC5172B91220049237D /* iTunesStore.xcdatamodel */;
+			name = iTunesStore.xcdatamodeld;
+			path = Model/iTunesStore.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
