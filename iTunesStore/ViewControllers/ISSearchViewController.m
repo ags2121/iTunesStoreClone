@@ -211,28 +211,22 @@ static NSString * const kThumbnails = @"thumbnails";
 {
     // TODO: Select Item
     
-    self.indexPathForSelectedItem = indexPath;
-    
     NSLog(@"DID select item");
+    self.indexPathForSelectedItem = indexPath;
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
     
     if (cell.isSelected) {
-        cell.backgroundColor = [UIColor whiteColor];
-        cell.selectedView.image = nil;
         cell.isSelected = NO;
     }
     else{
-        cell.backgroundColor = [UIColor redColor];
         cell.isSelected = YES;
     }
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
     // TODO: Deselect item
-        NSLog(@"DID deselect item");
+    NSLog(@"DID deselect item");
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
-    cell.backgroundColor = [UIColor whiteColor];
-    cell.selectedView.image = nil;
     cell.isSelected = NO;
 }
 
