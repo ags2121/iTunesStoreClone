@@ -18,5 +18,6 @@
 @dynamic developerName;
 @dynamic starRating;
 @dynamic thumbnail;
+@dynamic largeImageURL;
 
 @end

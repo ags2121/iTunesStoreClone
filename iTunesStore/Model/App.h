@@ -19,5 +19,6 @@
 @property (nonatomic, retain) NSString * developerName;
 @property (nonatomic, retain) NSNumber * starRating;
 @property (nonatomic, retain) NSData * thumbnail;
+@property (nonatomic, retain) NSString * largeImageURL;
 
 @end

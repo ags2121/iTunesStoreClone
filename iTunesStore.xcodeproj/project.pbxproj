@@ -48,7 +48,9 @@
 		A997AF4B17274379009D5D13 /* star.png in Resources */ = {isa = PBXBuildFile; fileRef = A997AF4917274379009D5D13 /* star.png */; };
 		A997AF4C17274379009D5D13 /* star@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A997AF4A17274379009D5D13 /* star@2x.png */; };
 		A9F5B92F172C68FF00D99FA0 /* ISFavoritesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A9F5B92E172C68FF00D99FA0 /* ISFavoritesViewController.m */; };
-		A9FFB168172C5212001E9228 /* App.m in Sources */ = {isa = PBXBuildFile; fileRef = A9FFB167172C5212001E9228 /* App.m */; };
+		A9F5B932172C719100D99FA0 /* App.m in Sources */ = {isa = PBXBuildFile; fileRef = A9F5B931172C719100D99FA0 /* App.m */; };
+		A9F5B939172C7A0900D99FA0 /* empty_star@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A9F5B937172C7A0900D99FA0 /* empty_star@2x.png */; };
+		A9F5B93A172C7A0900D99FA0 /* filled_star@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A9F5B938172C7A0900D99FA0 /* filled_star@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -104,8 +106,10 @@
 		A997AF4A17274379009D5D13 /* star@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star@2x.png"; sourceTree = "<group>"; };
 		A9F5B92D172C68FF00D99FA0 /* ISFavoritesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISFavoritesViewController.h; path = ViewControllers/ISFavoritesViewController.h; sourceTree = "<group>"; };
 		A9F5B92E172C68FF00D99FA0 /* ISFavoritesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISFavoritesViewController.m; path = ViewControllers/ISFavoritesViewController.m; sourceTree = "<group>"; };
-		A9FFB166172C5212001E9228 /* App.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = App.h; path = Model/App.h; sourceTree = "<group>"; };
-		A9FFB167172C5212001E9228 /* App.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = App.m; path = Model/App.m; sourceTree = "<group>"; };
+		A9F5B930172C719100D99FA0 /* App.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = App.h; path = Model/App.h; sourceTree = "<group>"; };
+		A9F5B931172C719100D99FA0 /* App.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = App.m; path = Model/App.m; sourceTree = "<group>"; };
+		A9F5B937172C7A0900D99FA0 /* empty_star@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "empty_star@2x.png"; sourceTree = "<group>"; };
+		A9F5B938172C7A0900D99FA0 /* filled_star@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "filled_star@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,8 +160,8 @@
 				A92DEC8B17283FC700FE1293 /* ISDataFetchSingleton.m */,
 				A92021F3172B5259008E8C6A /* imageCacheInitData.plist */,
 				A93BBFC4172B91220049237D /* iTunesStore.xcdatamodeld */,
-				A9FFB166172C5212001E9228 /* App.h */,
-				A9FFB167172C5212001E9228 /* App.m */,
+				A9F5B930172C719100D99FA0 /* App.h */,
+				A9F5B931172C719100D99FA0 /* App.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -226,6 +230,8 @@
 		A997AF44172740B8009D5D13 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				A9F5B937172C7A0900D99FA0 /* empty_star@2x.png */,
+				A9F5B938172C7A0900D99FA0 /* filled_star@2x.png */,
 				A9263C2F172A12F8009844D4 /* catPhone.png */,
 				A9263C2D172A12DF009844D4 /* catPhone@2x.png */,
 				A997AF451727430D009D5D13 /* magnify.png */,
@@ -326,6 +332,8 @@
 				A9263C2E172A12DF009844D4 /* catPhone@2x.png in Resources */,
 				A9263C30172A12F8009844D4 /* catPhone.png in Resources */,
 				A92021F4172B5259008E8C6A /* imageCacheInitData.plist in Resources */,
+				A9F5B939172C7A0900D99FA0 /* empty_star@2x.png in Resources */,
+				A9F5B93A172C7A0900D99FA0 /* filled_star@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,8 +353,8 @@
 				A9263C33172A156E009844D4 /* ISCollectionHeaderView.m in Sources */,
 				A9263C36172A1786009844D4 /* ISDetailsViewController.m in Sources */,
 				A93BBFC6172B91220049237D /* iTunesStore.xcdatamodeld in Sources */,
-				A9FFB168172C5212001E9228 /* App.m in Sources */,
 				A9F5B92F172C68FF00D99FA0 /* ISFavoritesViewController.m in Sources */,
+				A9F5B932172C719100D99FA0 /* App.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

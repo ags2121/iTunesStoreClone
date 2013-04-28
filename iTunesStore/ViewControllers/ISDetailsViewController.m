@@ -8,8 +8,12 @@
 
 #import "ISDetailsViewController.h"
 #import "ISDataFetchSingleton.h"
+#import "ISFavoritesViewController.h"
 
 @interface ISDetailsViewController ()
+
+@property (nonatomic) BOOL isFavorited;
+@property (nonatomic) BOOL didDelete;
 
 @end
 
@@ -27,7 +31,18 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSLog(@"app name in dvc: %@", self.appName);
+    
+    //if app exists in data star, change fav btn image to a filled star, and set bool
+    if( [[ISDataFetchSingleton sharedInstance] doesAppExistInDB:self.appName] ){
+        [self.favBtn setImage: [UIImage imageNamed:@"filled_star"] forState:UIControlStateSelected];
+        self.favBtn.selected = YES;
+        self.isFavorited = YES;
+    }
+    else{
+        [self.favBtn setImage: [UIImage imageNamed:@"empty_star"] forState:UIControlStateNormal];
+        self.favBtn.selected = NO;
+        self.isFavorited = NO;
+    }
     
     self.textView.text = self.appDescrip;
     self.appLabel.text = self.appName;
@@ -50,16 +65,37 @@
  
 
 - (IBAction)favBtnPressed:(id)sender {
+    
     NSLog(@"fav btn pressed");
     
-    if ( ! [[ISDataFetchSingleton sharedInstance] doesAppExistInDB:self.appName] ){
+    if ( !self.isFavorited ){
+        self.didDelete = NO;
         NSLog(@"app does not exist in core data, we will add it");
         [[ISDataFetchSingleton sharedInstance] addAppToFavorites:self.appInfoForCoreData];
+        [self.favBtn setImage: [UIImage imageNamed:@"filled_star"] forState:UIControlStateSelected];
+        self.favBtn.selected = YES;
+        self.isFavorited = YES;
+    }
+    else{
+        NSLog(@"we are unfavoriting");
+        self.didDelete = YES;
+        [[ISDataFetchSingleton sharedInstance] removeAppFromFavorites:self.appName];
+        [self.favBtn setImage: [UIImage imageNamed:@"empty_star"] forState:UIControlStateNormal];
+        self.favBtn.selected = NO;
+        self.isFavorited = NO;
+        
     }
     
 }
 
 - (IBAction)dismissBtnPressed:(id)sender {
+
+    if( [self.delegate isKindOfClass:[ISFavoritesViewController class]] && self.didDelete){
+        NSLog(@"we will reload data");
+        [self.delegate reloadData:self];
+    }
+    
+    self.didDelete = NO;
     [self.delegate detailsViewDidDismiss:self];
 }
 

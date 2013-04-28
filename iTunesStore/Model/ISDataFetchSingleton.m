@@ -200,6 +200,7 @@ NSString * const kCachedDate = @"cachedDate";
     app.starRating = appInfo[@"starRating"];
     app.buyLink = appInfo[@"buyLink"];
     app.developerName = appInfo[@"developerName"];
+    app.largeImageURL = appInfo[@"largeImageURL"];
     
     NSError *error = nil;
 	// Commit the change to on-disk store

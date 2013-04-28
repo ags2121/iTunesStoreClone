@@ -40,11 +40,7 @@ static NSString * const kThumbnails = @"thumbnails";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
         
-        //[[self.thumbnailCache objectForKey:@"thumbnails"][@"0"] setObject:@"test" forKey:@"1"];
-        
-    
     //register VC as accepting of notifications named "DidLoadNewData" from dataFetchSingleton
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(loadTable:)
@@ -263,11 +259,13 @@ static NSString * const kThumbnails = @"thumbnails";
         //pass dictionary of data model properties so user can add app to favorites
         NSNumber *starRating = [NSNumber numberWithInt: [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue]];
         
-        NSDictionary *appInfoForCoreData = @{@"appName" : dvc.appName, @"appDescription" : dvc.appDescrip, @"buyLink" : dvc.buyLink, @"starRating" : starRating, @"developerName" : cell.developerName.text, @"appPrice" : cell.price.text, @"thumbnail" : UIImagePNGRepresentation(cell.thumbnail.image)};
+        NSString *largeImageURL = self.searchResults[indexPath.section][indexPath.row][@"artworkUrl100"];
+        
+        NSDictionary *appInfoForCoreData = @{@"appName" : dvc.appName, @"appDescription" : dvc.appDescrip, @"buyLink" : dvc.buyLink, @"starRating" : starRating, @"developerName" : cell.developerName.text, @"appPrice" : cell.price.text, @"thumbnail" : UIImagePNGRepresentation(cell.thumbnail.image), @"largeImageURL" : largeImageURL};
         
         dvc.appInfoForCoreData = appInfoForCoreData;
         
-        //Download and pass
+        //Download and pass large image
         dispatch_async(dispatch_get_global_queue(0,0), ^{
             NSData *bigImageData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl100"] ]];
             if ( bigImageData == nil )

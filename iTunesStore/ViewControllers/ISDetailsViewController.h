@@ -13,6 +13,8 @@
 @protocol ModalDelegate <NSObject>
 
 - (void)detailsViewDidDismiss: (ISDetailsViewController*)dvc;
+@optional
+- (void)reloadData: (ISDetailsViewController*)dvc;
 
 @end
 
