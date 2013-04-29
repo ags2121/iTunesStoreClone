@@ -10,8 +10,8 @@ search API
 stars and price.
 <li> The results are sorted by star rating and organized into sections (i.e. the 
 first section 5 stars, the second 4 starts, etc.)
-<li> Tapping on the collection view cell presenting a modal view controller that 
-contains the app details, including the app description. There's a 
+<li> Tapping on a collection view cell presents a modal view controller that 
+contains the app details, including the app description. There's also 
 “Buy” button that redirects users to the app store, and a “Favorite” button that allows the user to save the app to a favorites list.
 <li> Uses NSCache to store previous queries results and tests before hitting the 
 iTunes server. Also uses NSCache to cache thumbnail images.
