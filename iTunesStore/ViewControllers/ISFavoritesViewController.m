@@ -21,6 +21,9 @@
 
 @property (strong, nonatomic) UIView *noDataView;
 @property (strong, nonatomic) NSIndexPath *indexPathForSelectedItem;
+@property (strong, nonatomic) iTunesStoreCell *theSelectedCell;
+@property (strong, nonatomic) UIImage *catPhoto;
+@property (strong, nonatomic) UICollectionView *theRealCollectionView;
 
 @end
 
@@ -47,7 +50,9 @@
     //TODO: if there are no favorites, show default screen
     //[self.collectionView addSubview:_noDataView];
     
-    [self.collectionView registerClass: [UICollectionReusableView class]forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader"];
+//    [self.collectionView registerClass: [UICollectionReusableView class]forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader"];
+    
+    self.catPhoto = [UIImage imageNamed:@"catPhone"];
 
 }
 
@@ -106,17 +111,37 @@
     
     
 	self.fetchedResultsController.delegate = self;
+    
+    
 	return self.fetchedResultsController;
 }
 
-- (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section {
+- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
+{
+    
+    NSLog(@"fetched results controller delegate method firing");
+    
+    NSError *error;
+	if (![[self fetchedResultsController] performFetch:&error]) {
+		NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+		exit(-1);  // Fail
+	}
+    
+    [self.collectionView reloadData];
+}
+
+#pragma mark - UICollectionView Datasource
+
+- (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section
+{
     
     id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex:section];
     NSLog(@"%d rows in section %d", [sectionInfo numberOfObjects], section);
     return [sectionInfo numberOfObjects];
 }
 
-- (NSInteger)numberOfSectionsInCollectionView: (UICollectionView *)collectionView {
+- (NSInteger)numberOfSectionsInCollectionView: (UICollectionView *)collectionView
+{
     
     NSLog(@"sections in tableview: %lu", (unsigned long)[[self.fetchedResultsController sections] count]);
     return [[self.fetchedResultsController sections] count];
@@ -136,6 +161,10 @@
     cell.thumbnail.clipsToBounds = YES;
     cell.price.text = app.appPrice;
     
+    //give cell a border
+    cell.layer.borderWidth = 2.0f;
+    cell.layer.borderColor = [[UIColor magentaColor] CGColor];
+    
     return cell;
 }
 
@@ -144,7 +173,17 @@
 {
     ISCollectionHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:
                                           UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader" forIndexPath:indexPath];
-    headerView.starRating.text = @"Your Favorite Apps!";
+    [headerView.eraseButton addTarget:self action:@selector(eraseFavorites:event:) forControlEvents:UIControlEventTouchUpInside];
+    
+    headerView.eraseButton.layer.cornerRadius = 10;
+    headerView.eraseButton.clipsToBounds = YES;
+    headerView.eraseButton.layer.borderWidth = 2.0f;
+    headerView.layer.borderColor = [[UIColor blackColor] CGColor];
+    
+    //give header a border
+    headerView.layer.borderWidth = 4.0f;
+    headerView.layer.borderColor = [[UIColor blackColor] CGColor];
+    
     return headerView;
 }
 
@@ -154,8 +193,9 @@
 {
     // TODO: Select Item
     NSLog(@"DID select item at indexPath: %@", indexPath);
-    self.indexPathForSelectedItem = indexPath;
     iTunesStoreCell *cell = (iTunesStoreCell*)[collectionView cellForItemAtIndexPath:indexPath];
+    self.indexPathForSelectedItem = indexPath;
+
     App *app = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     if (cell.isSelected) {
@@ -166,7 +206,7 @@
     }
     
     //add cat image to cell
-    //cell.selectedView.image = [UIImage imageNamed:@"catPhone"];
+    //cell.selectedView.image = self.catPhoto;
     
     ISDetailsViewController *dvc;
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
@@ -203,6 +243,7 @@
                 dvc.largeImageView.clipsToBounds = YES;
                 NSLog(@"big image for iPad");
             }
+            [dvc.activityIndicator stopAnimating];
         });
     });
     
@@ -220,6 +261,26 @@
     cell.isSelected = NO;
 }
 
+//TODO: why can't we access the cells' properties?
+- (void)deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated
+{
+    //why does cell return null? 
+    iTunesStoreCell *cell = (iTunesStoreCell*)[self.collectionView cellForItemAtIndexPath:indexPath];
+    
+    NSLog(@"we are in the deselect method, celL: %@", cell);
+    NSLog(@"index path: %@", indexPath);
+    //NSLog(@"the collection view: %@", self.collectionView);
+    
+    [UIView animateWithDuration:1.2 animations:^{
+        
+        cell.selectedView.alpha = 0;
+        
+    }completion:^(BOOL finished){
+        cell.selectedView.image = nil;
+        cell.selectedView.alpha = 1;
+    }];
+    
+}
 
 //TODO: why is indexPath returning null in prepareForSegue?
 /*
@@ -285,7 +346,9 @@
 - (void)detailsViewDidDismiss: (ISDetailsViewController*)dvc
 {
     [self dismissViewControllerAnimated:YES completion:NULL];
-    [self deselectItemAtIndexPath:self.indexPathForSelectedItem animated:YES];    
+    
+    //this method doesn't work
+    [self deselectItemAtIndexPath:self.indexPathForSelectedItem animated:YES];
 }
 
 - (void)reloadData: (ISDetailsViewController*)dvc
@@ -300,37 +363,29 @@
     [self.collectionView reloadData];
 }
 
-//TODO: why can't we access the cells' properties?
-- (void)deselectItemAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated
-{
-    iTunesStoreCell *cell = (iTunesStoreCell*)[self.collectionView cellForItemAtIndexPath:indexPath];
-    NSLog(@"we are in the deselect method at indexPath: %@", indexPath);
-    [UIView animateWithDuration:1.2 animations:^{
-        
-        cell.selectedView.alpha = 0;
-        
-    }completion:^(BOOL finished){
-        cell.selectedView = nil;
-    }];
+#pragma mark - UIAlertView methods
 
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
+-(void)eraseFavorites:(id)sender event:(id)event
 {
     
-    NSLog(@"fetched results controller delegate method firing");
+    UIAlertView *av;
     
-    NSError *error;
-	if (![[self fetchedResultsController] performFetch:&error]) {
-		NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-		exit(-1);  // Fail
-	}
+    if( [[[self.fetchedResultsController sections] objectAtIndex:0] numberOfObjects] == 0)
+        av = [[UIAlertView alloc] initWithTitle:nil message:@"There are no favorites to erase!\nAdd some favorites in the search zone." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    else
+        av = [[UIAlertView alloc] initWithTitle:nil message:@"Are you sure you want to erase all of your favorite apps?" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"Cancel", nil];
     
-    [self.collectionView reloadData];
+    [av show];
 }
 
-
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    NSLog(@"clicked button at index: %d", buttonIndex);
+    if (buttonIndex == 0) {
+        [[ISDataFetchSingleton sharedInstance] deleteAllApps];
+        [self.collectionView reloadData];
+    }
+}
 
 
 @end

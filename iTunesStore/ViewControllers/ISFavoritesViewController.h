@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "ISDetailsViewController.h"
 
-@interface ISFavoritesViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, NSFetchedResultsControllerDelegate, ModalDelegate>
+@interface ISFavoritesViewController : UIViewController<UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, NSFetchedResultsControllerDelegate, UIAlertViewDelegate, ModalDelegate>
 
 @property (nonatomic,strong) NSManagedObjectContext* managedObjectContext;
 @property (nonatomic,strong) NSFetchedResultsController* fetchedResultsController;

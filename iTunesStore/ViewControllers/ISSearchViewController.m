@@ -13,16 +13,20 @@ static NSString * const kThumbnails = @"thumbnails";
 #import "iTunesStoreCell.h"
 #import "ISCollectionHeaderView.h"
 #import "ISDetailsViewController.h"
+#import "NoDataView.h"
 
 @interface ISSearchViewController ()
 
 @property (strong, nonatomic) NSString *currentQuery;
+@property (strong, nonatomic) NSString *rawSearchString;
 @property (strong, nonatomic) NSArray *searchResults;
-@property (strong, nonatomic) UIView *noDataView;
+@property (strong, nonatomic) NoDataView *noDataView;
 @property (nonatomic) BOOL isKeyboardShowing;
 @property (strong, nonatomic) UITapGestureRecognizer * tapOnCollectionView;
 @property (strong, nonatomic) NSCache *thumbnailCache;
 @property (strong, nonatomic) NSIndexPath *indexPathForSelectedItem;
+@property (strong, nonatomic) UIImage *catPhoto;
+@property (nonatomic) BOOL noDataViewShowing;
 
 @end
 
@@ -77,6 +81,7 @@ static NSString * const kThumbnails = @"thumbnails";
        _noDataView = [[[NSBundle mainBundle] loadNibNamed:@"NoDataView" owner:self options:nil] objectAtIndex:0];
         _noDataView.frame = self.collectionView.frame;
         [self.collectionView addSubview:_noDataView];
+        self.noDataViewShowing = YES;
     }
     
     // Listen for keyboard appearances and disappearances
@@ -95,7 +100,10 @@ static NSString * const kThumbnails = @"thumbnails";
     [_tapOnCollectionView setDelegate:self];
     [self.collectionView addGestureRecognizer:_tapOnCollectionView];
     
-    [self.collectionView registerClass: [UICollectionReusableView class]forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader"];
+    //[self.collectionView registerClass: [UICollectionReusableView class]forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader"];
+    
+    //set reference to catPhoto
+    self.catPhoto = [UIImage imageNamed:@"catPhone"];
 }
 
 - (void)didReceiveMemoryWarning
@@ -128,9 +136,27 @@ static NSString * const kThumbnails = @"thumbnails";
         self.noDataView.alpha = 0;
     }completion:^(BOOL finished){
         
+        [self.noDataView.activityIndicator stopAnimating];
         [self.noDataView removeFromSuperview];
+        self.noDataViewShowing = NO;
+        self.noDataView.alpha = 1;
     }];
+}
+
+-(void)showUIAlert:(NSNotification*)notif
+{
+
+    NSString* alertMessage;
     
+    if ([notif.name isEqualToString:@"CouldNotConnectToFeed"]) alertMessage = @"Could not connect to the App Store.\nPlease check internet connection.";
+    
+    else if([notif.name isEqualToString:@"NoDataInFeed"]) alertMessage = [NSString stringWithFormat:@"No app results for \"%@\"!", self.rawSearchString];
+    
+    UIAlertView *av = [[UIAlertView alloc] initWithTitle:nil message:alertMessage delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    [av show];
+    
+    [self.noDataView.activityIndicator stopAnimating];
+
 }
 
 #pragma mark - UICollectionView Datasource
@@ -166,21 +192,29 @@ static NSString * const kThumbnails = @"thumbnails";
         //else, download and store thumbnail image in cache
         dispatch_async(dispatch_get_global_queue(0,0), ^{
             NSData * thumbnailData = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: self.searchResults[indexPath.section][indexPath.row][@"artworkUrl60"]]];
-            if ( thumbnailData == nil )
+            if ( thumbnailData == nil ){
                 NSLog(@"could not download thumbnail in cell: %@", indexPath);
-                                                                                                   
+                //return;
+            }
+            else{
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 cell.thumbnail.image = [UIImage imageWithData: thumbnailData];
                 [[self.thumbnailCache objectForKey:self.currentQuery][section] setObject:thumbnailData forKey:row];
             });
+            }
         });
     }
     
     //round thumbnail corners
     cell.thumbnail.layer.cornerRadius = 10;
     cell.thumbnail.clipsToBounds = YES;
-        
+    
+    //give cell a border
+    cell.layer.borderWidth = 2.0f;
+    cell.layer.borderColor = [[UIColor magentaColor] CGColor];
+    
     //Show star rating
     NSUInteger starRating = [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue];
     cell.starRatingImage.image = [UIImage imageNamed: [NSString stringWithFormat:@"%dStar", starRating]];
@@ -201,11 +235,15 @@ static NSString * const kThumbnails = @"thumbnails";
  (UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
  {
      ISCollectionHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:
-                                          UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader" forIndexPath:indexPath];
+                                           UICollectionElementKindSectionHeader withReuseIdentifier:@"iTunesStoreHeader" forIndexPath:indexPath];
      
      NSUInteger starRating = [[self.searchResults[indexPath.section][indexPath.row] objectForKey: @"averageUserRating"] intValue];
      
      headerView.starRating.text = [NSString stringWithFormat:@"%d Star Rated Apps", starRating];
+     
+     //give header a border
+     headerView.layer.borderWidth = 4.0f;
+     headerView.layer.borderColor = [[UIColor blackColor] CGColor];
 
      return headerView;
  }
@@ -242,7 +280,7 @@ static NSString * const kThumbnails = @"thumbnails";
     if ([segue.identifier isEqualToString:@"segueToDetailVC"]){
         
         //add cat image to cell
-        cell.selectedView.image = [UIImage imageNamed:@"catPhone"];
+        cell.selectedView.image = self.catPhoto;
         
         ISDetailsViewController *dvc = (ISDetailsViewController*)segue.destinationViewController;
         
@@ -260,6 +298,9 @@ static NSString * const kThumbnails = @"thumbnails";
         NSNumber *starRating = [NSNumber numberWithInt: [self.searchResults[indexPath.section][indexPath.row][@"averageUserRating"] intValue]];
         
         NSString *largeImageURL = self.searchResults[indexPath.section][indexPath.row][@"artworkUrl100"];
+        
+        if(cell.thumbnail.image == nil)
+            cell.thumbnail.image = [UIImage imageNamed:@"blankThumbnail"];
         
         NSDictionary *appInfoForCoreData = @{@"appName" : dvc.appName, @"appDescription" : dvc.appDescrip, @"buyLink" : dvc.buyLink, @"starRating" : starRating, @"developerName" : cell.developerName.text, @"appPrice" : cell.price.text, @"thumbnail" : UIImagePNGRepresentation(cell.thumbnail.image), @"largeImageURL" : largeImageURL};
         
@@ -286,6 +327,8 @@ static NSString * const kThumbnails = @"thumbnails";
                     NSLog(@"big image for iPad");
                 }
                 
+                [dvc.activityIndicator stopAnimating];
+                
             });
         });
         
@@ -299,11 +342,19 @@ static NSString * const kThumbnails = @"thumbnails";
     
     NSString *caseOfMultipleParams = [searchBar.text stringByReplacingOccurrencesOfString:@" " withString:@"+"];
     
+    self.rawSearchString = searchBar.text;
+    
     self.currentQuery = [NSString stringWithFormat: @"https://itunes.apple.com/search?term=%@&media=software", caseOfMultipleParams];
     [[ISDataFetchSingleton sharedInstance] beginQuery:self.currentQuery];
-
    
     [searchBar resignFirstResponder];
+    
+    if (!self.noDataViewShowing){
+        [self.collectionView addSubview:_noDataView];
+        self.noDataViewShowing = YES;
+    }
+    
+    [self.noDataView.activityIndicator startAnimating];
 }
 
 #pragma mark - keyboard notification callbacks
@@ -354,7 +405,8 @@ static NSString * const kThumbnails = @"thumbnails";
         cell.selectedView.alpha = 0;
         
     }completion:^(BOOL finished){
-        cell.selectedView = nil;
+        cell.selectedView.image = nil;
+        cell.selectedView.alpha = 1;
     }];
 }
 

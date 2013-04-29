@@ -10,5 +10,6 @@
 
 @interface ISCollectionHeaderView : UICollectionReusableView
 @property (weak, nonatomic) IBOutlet UILabel *starRating;
+@property (weak, nonatomic) IBOutlet UIButton *eraseButton;
 
 @end

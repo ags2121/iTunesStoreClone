@@ -26,6 +26,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *favBtn;
 @property (weak, nonatomic) IBOutlet UIButton *dismissVCbtn;
 @property (weak, nonatomic) IBOutlet UIImageView *largeImageView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 @property (strong, nonatomic) NSString *buyLink;
 @property (strong, nonatomic) NSString *appName;
@@ -36,5 +37,6 @@
 
 - (IBAction)favBtnPressed:(id)sender;
 - (IBAction)dismissBtnPressed:(id)sender;
+- (IBAction)buyBtnPressed:(id)sender;
 
 @end

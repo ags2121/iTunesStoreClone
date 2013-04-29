@@ -32,6 +32,12 @@
 {
     [super viewDidLoad];
     
+    [self.activityIndicator startAnimating];
+    
+    //add textView border
+    self.textView.layer.borderWidth = 4.0f;
+    self.textView.layer.borderColor = [[UIColor blackColor] CGColor];
+    
     //if app exists in data star, change fav btn image to a filled star, and set bool
     if( [[ISDataFetchSingleton sharedInstance] doesAppExistInDB:self.appName] ){
         [self.favBtn setImage: [UIImage imageNamed:@"filled_star"] forState:UIControlStateSelected];

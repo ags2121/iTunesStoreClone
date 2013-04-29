@@ -95,6 +95,14 @@ NSString * const kCachedDate = @"cachedDate";
     } else {
         
         NSDictionary *results = [NSJSONSerialization JSONObjectWithData:retrievedData options:kNilOptions error:&error];
+        
+        //if no results return, post no data and break
+        if([results[@"results"] count] == 0){
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"NoDataInFeed"
+                                                                object:nil];
+            return;
+        }
+        
         NSMutableDictionary *mutableResults = [NSMutableDictionary dictionaryWithDictionary:results];
         
         //sort results by rating
