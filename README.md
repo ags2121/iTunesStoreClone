@@ -1,7 +1,7 @@
 iTunesStoreClone
 ================
 
-Built an iTunes App Store Clone that implements the following features:
+An iTunes App Store Clone that implements the following features:
 <ul>
 <li> Utilizes a UISearchBar to receive a search string that is used to query the iTunes 
 search API
