@@ -16,5 +16,6 @@ contains the app details, including the app description. There's also
 <li> Uses NSCache to store previous queries results and tests before hitting the 
 iTunes server. Also uses NSCache to cache thumbnail images.
 <li> The favorites list uses Core Data. 
+<li> GTMHTTPFetcher used for Networking.
 <li> The app is Universal.
 </ul>
